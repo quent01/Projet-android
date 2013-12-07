@@ -22,8 +22,9 @@
 	  	    android:layout_width="wrap_content"
 	  	    android:layout_height="match_parent"
 	  	    android:layout_alignParentTop="true"
-	  	    android:layout_marginLeft="50dip"
 	  	    android:layout_toRightOf="@+id/logo"
+	  	    android:layout_marginLeft="80dip"
+	  	    android:layout_marginRight="30dip"
 	  	    android:gravity="center">
 
 	  	    <ImageView
@@ -33,7 +34,6 @@
 	  	        android:src="@drawable/help" 
 	  	        android:layout_width="25dip"
 	  	        />
-
 	  	    <TextView
 	  	        android:id="@+id/text_help_logo"
 	  	        android:textColor="@color/header_textColor"
@@ -45,13 +45,13 @@
 	  	        android:gravity="center"
 	  	        android:text="Help" />
 	  	</TableRow>
+	  	
 	  	<Spinner
 	  	    android:id="@+id/spinner_locations"
 	  	    android:layout_width="wrap_content"
 	  	    android:layout_height="match_parent"
 	  	    android:layout_toRightOf="@+id/help_menu" 
-	  		android:layout_marginLeft="30dip"
-	  		android:gravity="center_vertical"    
+	  		android:gravity="center_vertical"   
 	  	/>
 
     <!-- end header -->

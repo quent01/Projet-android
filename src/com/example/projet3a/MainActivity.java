@@ -30,10 +30,14 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_screen);
-        addItemsOnSpinner2();
-    	addListenerOnButton();
+        
+        Typeface lovelo = Typeface.createFromAsset(getAssets(), "fonts/Lovelo Black.otf");
+        
+        addItemsOnSpinner();
+        
+        addListenerOnButton();
     	
-    	Typeface lovelo = Typeface.createFromAsset(getAssets(), "fonts/Lovelo Black.otf");
+    	
     	
     	//change of font in "Lovelo"
     	TextView text_help_logo = (TextView) findViewById(R.id.text_help_logo);
@@ -70,17 +74,17 @@ public class MainActivity extends Activity {
     }
     
     // add items into spinner dynamically (Locations)
-    public void addItemsOnSpinner2() {
+    public void addItemsOnSpinner() {
    
-  	spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
-  	List<String> list = new ArrayList<String>();
-  	list.add("location 1");
-  	list.add("location 2");
-  	list.add("location 3");
-  	ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-  		android.R.layout.simple_spinner_item, list);
-  	dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-  	spinner_locations.setAdapter(dataAdapter);
+	  	spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
+	  	List<String> list = new ArrayList<String>();
+	  	list.add("location 1");
+	  	list.add("location 2");
+	  	list.add("location 3");
+	  	ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+	  		android.R.layout.simple_spinner_item, list);
+	  	dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	  	spinner_locations.setAdapter(dataAdapter);
     }
    
     // get the selected dropdown list value
