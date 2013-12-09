@@ -4,13 +4,21 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     tools:context=".MainActivity" 
-    android:background="@color/post_header_color">
+    android:background="@color/main_body_color">
     
     <!-- header -->
    	<include layout="@layout/activity_main"/>
    	
    	<!-- post header -->
    	<include layout="@layout/post_header"/>
+   	
+   	<!-- Separation line -->
+    <View 
+        android:layout_marginTop="2dip"
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="@color/separation_line_color"
+    />
 
    	<!-- list of datas : type, value, state -->
    	<ListView

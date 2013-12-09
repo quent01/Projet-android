@@ -4,7 +4,7 @@ package data.example.projet3a;
 public class sensor_line {
 	private String sensorType;
 	private String sensorUnity;
-	private float sensorValue;
+	private String sensorValue;
 	private int idImgSensor;
 	private boolean state;
 	
@@ -12,14 +12,14 @@ public class sensor_line {
 	public sensor_line() {
 		sensorType=null;
 		sensorUnity=null;
-		sensorValue=0;
+		sensorValue=null;
 		idImgSensor=0;
 		state=false;
 	}
 	
 	
 	public sensor_line(String sensorType, String sensorUnity,
-			float sensorValue, int idImgSensor, boolean state) {
+			String sensorValue, int idImgSensor, boolean state) {
 		super();
 		this.sensorType = sensorType;
 		this.sensorUnity = sensorUnity;
@@ -42,11 +42,11 @@ public class sensor_line {
 	public void setSensorUnity(String sensorUnity) {
 		this.sensorUnity = sensorUnity;
 	}
-	public float getSensorValue() {
+	public String getSensorValue() {
 		return sensorValue;
 	}
-	public void setSensorValue(float sensorValue) {
-		this.sensorValue = sensorValue;
+	public void setSensorValue(String string) {
+		this.sensorValue = string;
 	}
 	public int getIdImgSensor() {
 		return idImgSensor;

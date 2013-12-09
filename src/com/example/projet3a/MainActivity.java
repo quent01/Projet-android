@@ -3,10 +3,18 @@ package com.example.projet3a;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import data.example.projet3a.JSONParser;
 import data.example.projet3a.sensor_adapter;
 import data.example.projet3a.sensor_line;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.graphics.Typeface;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,6 +33,31 @@ public class MainActivity extends Activity {
 	private sensor_adapter adapter;
 	private sensor_line line;
 	private ListView list;
+	
+//JSON part of the code
+	//url to make request
+	private static String url = "http://arduino.hostei.com/index.php/get/test";//test is the password
+	
+	//JSON node names
+	private static final String TAG_DATA = "data";//le data json array
+	private static final String TAG_ID_DATA = "id_data";//change in 
+	private static final String TAG_ID_GENERATOR = "id_generator";//change in location
+	private static final String TAG_ID_SENSOR = "id_sensor";//change in sensorname
+	private static final String TAG_VALUE = "value";
+	private static final String TAG_DATE = "date";
+	
+	//data_array JSONArray
+	private JSONArray data_array = null;
+	
+	//creation of the progress dialog bar
+	protected ProgressDialog progress;
+	final Handler progressHandler = new Handler(){
+		public void handleMessage(Message msg){
+			progress.dismiss();
+			list.setAdapter(adapter);
+		}
+		
+	};
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,17 +93,44 @@ public class MainActivity extends Activity {
     	adapter = new sensor_adapter(this, R.layout.data_display);
     	list = (ListView) findViewById(R.id.data_display_list);
     	
-    	//we add all the lines
-    	line=new sensor_line("hydrometrie", "km", 102.3f,R.drawable.help,true);
-    	adapter.add(line);
+    	//display of the progress bar
+    	progress = ProgressDialog.show(this, null, "Data loading", true);
     	
-    	line=new sensor_line("autre", "unité", 2.3f,R.drawable.help,false);
-    	adapter.add(line);
-
-    	line=new sensor_line("autre", "unité", 10.3f,R.drawable.help,true);
-    	adapter.add(line);
-    	
-    	list.setAdapter(adapter);
+    	new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+		    	// Creating JSON Parser instance
+		    	JSONParser jParser = new JSONParser();
+		    	
+		    	// getting JSON string from URL
+		    	JSONObject json = jParser.getJSONFromUrl(url+"/1/1");//
+		    	 
+		    	try {
+		    		// Getting Array of data_array
+		    	    data_array = json.getJSONArray(TAG_DATA);
+		    	    
+		    	 // looping through All Contacts
+		    	    for(int i = 0; i < data_array.length(); i++){
+		    	        JSONObject c = data_array.getJSONObject(i);
+		    	         
+		    	        line = new sensor_line();
+		    	        line.setIdImgSensor(R.drawable.help);
+		    	        line.setSensorType(c.getString(TAG_ID_SENSOR));//change in sensorname
+		    	        line.setSensorUnity(c.getString(TAG_DATE));//change in sensor unity
+		    	        line.setSensorValue(c.getString(TAG_VALUE));
+		    	        line.setState(true);//to modify with a function that determine if a value is safe or not
+		    	    
+		    	        adapter.add(line);
+		    	    }
+		    	    //we indicate that the treatment is over
+		    	    progressHandler.sendMessage(progressHandler.obtainMessage());
+		    	
+		    	}catch (JSONException e) {
+		    	    e.printStackTrace();
+		    	}
+			}
+    	}).start();//begin the content of the run function
     }
     
     // add items into spinner dynamically (Locations)

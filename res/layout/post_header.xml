@@ -54,12 +54,5 @@
   	        android:text="STATE" />
     </TableRow>
     
-    <!-- Separation line -->
-    <View 
-        android:layout_below="@+id/data_description"
-        android:layout_marginTop="2dip"
-        android:layout_width="fill_parent"
-        android:layout_height="2dp"
-        android:background="@color/separation_line_color"
-    />
+
 </RelativeLayout>    
