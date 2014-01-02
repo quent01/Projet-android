@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import data.example.projet3a.JSONParser;
 import data.example.projet3a.sensor_adapter;
 import data.example.projet3a.sensor_line;
+import android.R.string;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,25 +35,37 @@ public class MainActivity extends Activity {
 	private sensor_line line;
 	private ListView list;
 	
+	//	concerns the database
+	private static String db_pwd = "test";
+	
+	private static int id_generator = 1;//a function must be done to determine the id of the generator
+	
+	
 //JSON part of the code
-	//url to make request
-	private static String url = "http://arduino.hostei.com/index.php/get/test";//test is the password
+	//url to make get the last data for all sensors of 1 generator
+	//get is the method, test
+	private static String url = "http://arduino.hostei.com/index.php/get/"
+			+ db_pwd + "/"			//password to access the database
+			+ id_generator +"/"		//id of the generator
+			+ "sensorsdata";		//name to obtain last datas for all sensors
 	
 	//JSON node names
-	private static final String TAG_DATA = "data";//le data json array
-	private static final String TAG_ID_DATA = "id_data";//change in 
+	private static final String TAG_SENSORS = "sensors";//the sensors json array
+	private static final String TAG_UNIT = "unit";//the unit in which the sensor value is expressed 
 	private static final String TAG_ID_GENERATOR = "id_generator";//change in location
-	private static final String TAG_ID_SENSOR = "id_sensor";//change in sensorname
+	private static final String TAG_SENSOR_NAME = "sensor_name";
 	private static final String TAG_VALUE = "value";
 	private static final String TAG_DATE = "date";
 	
 	//data_array JSONArray
 	private JSONArray data_array = null;
 	
-	//creation of the progress dialog bar
+	//creation of the progress dialog bar ("data loading")
 	protected ProgressDialog progress;
 	final Handler progressHandler = new Handler(){
 		public void handleMessage(Message msg){
+			progress.setTitle("Processing...");
+			progress.setMessage("Please wait.");
 			progress.dismiss();
 			list.setAdapter(adapter);
 		}
@@ -104,11 +117,11 @@ public class MainActivity extends Activity {
 		    	JSONParser jParser = new JSONParser();
 		    	
 		    	// getting JSON string from URL
-		    	JSONObject json = jParser.getJSONFromUrl(url+"/1/1");//
+		    	JSONObject json = jParser.getJSONFromUrl(url);//we get the json from the url
 		    	 
 		    	try {
 		    		// Getting Array of data_array
-		    	    data_array = json.getJSONArray(TAG_DATA);
+		    	    data_array = json.getJSONArray(TAG_SENSORS);
 		    	    
 		    	 // looping through All Contacts
 		    	    for(int i = 0; i < data_array.length(); i++){
@@ -116,10 +129,10 @@ public class MainActivity extends Activity {
 		    	         
 		    	        line = new sensor_line();
 		    	        line.setIdImgSensor(R.drawable.help);
-		    	        line.setSensorType(c.getString(TAG_ID_SENSOR));//change in sensorname
-		    	        line.setSensorUnity(c.getString(TAG_DATE));//change in sensor unity
+		    	        line.setSensorType(c.getString(TAG_SENSOR_NAME));
+		    	        line.setSensorUnity(c.getString(TAG_UNIT));
 		    	        line.setSensorValue(c.getString(TAG_VALUE));
-		    	        line.setState(true);//to modify with a function that determine if a value is safe or not
+		    	        line.setState(false);//to modify with a function that determine if a value is safe or not
 		    	    
 		    	        adapter.add(line);
 		    	    }

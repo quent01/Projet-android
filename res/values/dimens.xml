@@ -14,10 +14,11 @@
     
     <dimen name="sensor_value_textSize">35sp</dimen>
     
-    <dimen name="margin_left_sensortype">7dip</dimen>
-    <dimen name="margin_left_sensorstate">24dip</dimen>
-    <dimen name="margin_left_sensor_value">15dip</dimen>
-    <dimen name="margin_top_img">3dip</dimen>
-    <dimen name="minus_margin_top_img">-3dip</dimen><!-- = -margin_top_img -->
+    
 
+	<!-- Dimensions that concern icons -->
+	<dimen name="datas_icon_height">40dip</dimen>
+	<dimen name="margin_top_icon_sate">9dip</dimen>
+	<dimen name="margin_top_img">3dip</dimen>
+    <dimen name="minus_margin_top_img">-3dip</dimen><!-- = -margin_top_img -->
 </resources>

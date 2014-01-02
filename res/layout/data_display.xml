@@ -2,31 +2,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/data_display_height"
-    android:orientation="horizontal"
-    android:layout_marginTop="10dip"
     android:layout_marginEnd="5dip"
+    android:layout_marginTop="10dip"
+    android:orientation="horizontal"
     android:weightSum="3"
-    tools:context=".MainActivity" 
-    >
+    tools:context=".MainActivity" >
+
     <LinearLayout 
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:layout_marginLeft="@dimen/margin_left_sensortype"
         >
         <ImageView
 	  	    android:id="@+id/sensortype_img"
-	  	    android:layout_width="100dip"
-	  	    android:layout_height="40dip"
+	  	    android:layout_width="wrap_content"
+	  	    android:layout_height="@dimen/datas_icon_height"
+	  	    android:layout_gravity="center_horizontal"
 	  	    android:layout_marginTop="@dimen/margin_top_img"
 	  	    android:src="@drawable/help" 
 	  	/>
         <TextView 
             android:id="@+id/sensortype"
-        	android:layout_width="100dip"
+        	android:layout_width="wrap_content"
         	android:layout_height="wrap_content"
-        	android:gravity="center_horizontal"
+        	android:layout_gravity="center_horizontal"
         	android:textColor="@color/black"
         	android:layout_marginTop="@dimen/minus_margin_top_img"
         	android:text=""
@@ -37,23 +37,23 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:gravity="center"
-        android:layout_marginLeft="@dimen/margin_left_sensor_value"
+        android:layout_gravity="center"
         >
         <TextView
 	  	    android:id="@+id/sensor_value"
-	  	    android:layout_width="100dip"
-	  	    android:layout_height="40dip"
+	  	    android:layout_width="wrap_content"
+	  	    android:layout_height="wrap_content"
 	  	    android:textSize="@dimen/sensor_value_textSize"
 	  	    android:text=""
-	  	    android:gravity="center" 
+	  	    android:layout_gravity="center" 
 	  	/>
         <TextView 
             android:id="@+id/sensor_unity"
-        	android:layout_width="100dip"
-        	android:layout_height="wrap_content"
-        	android:gravity="center_horizontal"
+        	android:layout_width="wrap_content"
+        	android:layout_height="@dimen/datas_icon_height"
+        	android:layout_gravity="center"
         	android:textColor="@color/black"
+        	android:layout_marginTop="-8dip"
         	android:text=""
        	/>
     </LinearLayout>
@@ -62,23 +62,15 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:layout_marginLeft="@dimen/margin_left_sensorstate"
+        android:layout_gravity="center_horizontal"
         >
         <ImageView
 	  	    android:id="@+id/sensor_state"
-	  	    android:layout_width="100dip"
-	  	    android:layout_height="40dip"
-	  	    android:layout_marginTop="@dimen/margin_top_img"
-	  	    android:src="@drawable/help" 
-	  	/>
-        <ImageView
-	  	    android:id="@+id/more"
 	  	    android:layout_width="wrap_content"
-	  	    android:layout_height="18dip"
-	  	    android:src="@drawable/more"
-	  	    android:layout_gravity="right"
-	  	    android:paddingRight="5dip"
-	  	    android:layout_marginTop="@dimen/minus_margin_top_img" 
+	  	    android:layout_height="@dimen/datas_icon_height"
+	  	    android:layout_gravity="center"
+	  	    android:layout_marginTop="@dimen/margin_top_icon_sate"
+	  	    android:src="@drawable/help" 
 	  	/>
     </LinearLayout>
 </LinearLayout> 

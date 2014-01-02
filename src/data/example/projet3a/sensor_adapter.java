@@ -66,7 +66,7 @@ public class sensor_adapter extends ArrayAdapter<sensor_line>{
 		if(line.isState())//data is correct
 			sensorstate_img.setImageResource(R.drawable.ok);//data is ok
 		else
-			sensorstate_img.setImageResource(R.drawable.warning);//data is in a weird range of values	
+			sensorstate_img.setImageResource(R.drawable.ic_warning);//data is in a weird range of values	
 		
 		
 		return result;
