@@ -1,3 +1,4 @@
+<!-- Header principale -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -6,7 +7,6 @@
     tools:context=".MainActivity" 
     android:background="@color/header_color"
     >
-    <!-- Header -->
     	<ImageView
 	  	    android:id="@+id/logo"
 	  	    android:layout_width="wrap_content"
@@ -50,9 +50,8 @@
 	  	    android:id="@+id/spinner_locations"
 	  	    android:layout_width="wrap_content"
 	  	    android:layout_height="match_parent"
+	  	    android:prompt = "@string/spinner_locations_title"
 	  	    android:layout_toRightOf="@+id/help_menu" 
 	  		android:gravity="center_vertical"   
 	  	/>
-
-    <!-- end header -->
 </RelativeLayout>

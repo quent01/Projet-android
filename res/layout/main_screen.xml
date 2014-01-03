@@ -2,9 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/main_body_color"
     android:orientation="vertical"
-    tools:context=".MainActivity" 
-    android:background="@color/main_body_color">
+    tools:context=".MainActivity" >
     
     <!-- header -->
    	<include layout="@layout/activity_main"/>

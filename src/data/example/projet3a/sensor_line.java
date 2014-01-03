@@ -1,3 +1,9 @@
+/*
+ * This class permit to build the object which will permit
+ * to display data of a generator, line by line  
+ */
+
+
 package data.example.projet3a;
 
 
