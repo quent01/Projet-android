@@ -1,5 +1,8 @@
 package com.example.projet3a;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -92,6 +95,26 @@ public class GeneratorsBDD {
 		
 		//we return the generator
 		return generator;
+	}
+	
+	public List<String> getAllGenerators(){
+		List<String> generators = new ArrayList<String>();
+		//Select All Query
+		String selectQuery = "SELECT * FROM " + TABLE_GENERATORS;
+		
+		SQLiteDatabase db = databaseGenerators.getReadableDatabase();
+		Cursor cursor = db.rawQuery(selectQuery, null);
+		//looping through all row and adding to list
+		if (cursor.moveToFirst()){
+			do {
+				generators.add(cursor.getString(1));
+			} while (cursor.moveToNext());
+		}
+		//closing connection
+		cursor.close();
+		db.close();
+		//returning generators
+		return generators;
 	}
 }
 
