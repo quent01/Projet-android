@@ -42,51 +42,11 @@ public class DatabaseGenerators extends SQLiteOpenHelper{
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion,int newVersion){
 		//Drop older table if existed
+		//This has to be modified, we don't want to drop the table we want to update it
 		db.execSQL("DROP TABLE IF EXISTS" + TABLE_GENERATORS);
 		//create tables again
 		onCreate(db);
 	}
 		
-//	/**
-//	 * inserting new table into lables table
-//	 * */
-//	public void insertLabel (String label) {
-//		SQLiteDatabase db = this.getWritableDatabase();
-//		
-//		ContentValues values = new ContentValues();
-//		values.put(KEY_NAME, label);
-//		
-//		//inserting Row
-//		db.insert(TABLE_NAME, null, values);
-//		db.close();//closing database connection
-//	}
-//	 
-//	/**
-//	 * Getting all labels
-//	 * Returns list of lables
-//	 */
-//	public List<String> getAllLabels(){
-//		List<String> labels = new ArrayList<String>();
-//		
-//		//Select all Query
-//		String selectQuery = "SELECT * FROM " + TABLE_NAME;
-//		
-//		SQLiteDatabase db = this.getReadableDatabase();
-//		Cursor cursor = db.rawQuery(selectQuery, null);
-//		
-//		//looping through all rows and adding to list
-//		if (cursor.moveToFirst()){
-//			do {
-//				labels.add(cursor.getString(1));
-//			} while (cursor.moveToNext());
-//		}
-//		
-//		//closing connection
-//		cursor.close();
-//		db.close();
-//		
-//		//returning labels
-//		return labels;
-//	}
 }
 

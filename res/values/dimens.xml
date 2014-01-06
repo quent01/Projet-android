@@ -10,7 +10,10 @@
     <dimen name="post_header_height">70dip</dimen>
     <dimen name="data_description_textsize">16sp</dimen>
     
+    <!-- datadisplay : Sensorline  -->
     <dimen name="data_display_height">60dip</dimen>
+    <!-- width of each columns type, value and state  -->
+ 	<dimen name="width_element">80dip</dimen>   
     
     <dimen name="sensor_value_textSize">35sp</dimen>
     

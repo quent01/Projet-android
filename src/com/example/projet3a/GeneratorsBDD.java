@@ -63,16 +63,16 @@ public class GeneratorsBDD {
 		values.put(KEY_LOCATION_NAME, generator.getLocation_name());
 		values.put(KEY_LATITUDE, generator.getLatitude());
 		values.put(KEY_LONGITUDE, generator.getLongitude());
-		return bdd.update(TABLE_GENERATORS, values, KEY_ID + "=" +id, null);
+		return bdd.update(TABLE_GENERATORS, values, KEY_ID + " = " +id, null);
 	}
 	
 	public int removeGeneratorWithID(int id){
-		return bdd.delete(TABLE_GENERATORS, KEY_ID + "=" + id, null);
+		return bdd.delete(TABLE_GENERATORS, KEY_ID + " = " + id, null);
 	}
 	
 	public Generator getGeneratorWithLocationName(String location_name){
-		Cursor c = bdd.query(TABLE_GENERATORS, new String[] {KEY_ID, KEY_LOCATION_NAME, KEY_LATITUDE, KEY_LONGITUDE},
-				KEY_LOCATION_NAME + "LIKE \"" + location_name + "\"", null, null, null, null);
+		Cursor c = bdd.query(TABLE_GENERATORS, new String[] {KEY_ID, KEY_LOCATION_NAME, KEY_LATITUDE, KEY_LONGITUDE}, 
+				KEY_LOCATION_NAME + " LIKE \"" + location_name +"\"", null, null, null, null);
 		return cursorToGenerator(c);
 	}
 	
@@ -85,11 +85,10 @@ public class GeneratorsBDD {
 		c.moveToFirst();
 		//we create the generator
 		Generator generator = new Generator();
-		generator.setIdGenerator(NUM_KEY_ID);
-		generator.setLocation_name(KEY_LOCATION_NAME);
-		generator.setLatitude(NUM_KEY_LATITUDE);
-		generator.setLongitude(NUM_KEY_LONGITUDE);
-		
+		generator.setIdGenerator(c.getInt(NUM_KEY_ID));
+		generator.setLocation_name(c.getString(NUM_KEY_LOCATION_NAME));
+		generator.setLatitude(c.getFloat(NUM_KEY_LATITUDE));
+		generator.setLongitude(c.getFloat(NUM_KEY_LONGITUDE));
 		//we close the cursor
 		c.close();
 		
@@ -107,7 +106,7 @@ public class GeneratorsBDD {
 		//looping through all row and adding to list
 		if (cursor.moveToFirst()){
 			do {
-				generators.add(cursor.getString(1));
+				generators.add(cursor.getString(NUM_KEY_LOCATION_NAME)); 
 			} while (cursor.moveToNext());
 		}
 		//closing connection

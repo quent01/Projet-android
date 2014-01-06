@@ -21,21 +21,22 @@ import android.app.ProgressDialog;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class MainActivity extends Activity{
-
-
-//	private Button btnSubmit;
+public class MainActivity extends Activity implements OnItemSelectedListener{
 	
 	private sensor_adapter sensor_adapter;
 	private sensor_line sensor_line;
 	
 	private Generator generator;
+	GeneratorsBDD generatorsBDD = new GeneratorsBDD(MainActivity.this);
+	private String location_selected;
 
 	
 	//ListView for sensordata display
@@ -44,16 +45,7 @@ public class MainActivity extends Activity{
 	private Spinner spinner_locations;
 	
 	//	concerns the database
-	private static int id_generator = 1;//a function must be done to determine the id of the generator
-	
-//JSON part of the code
-	//url to make get the last data for all sensors of 1 generator
-	//get is the method, test
-	
-	
-	//url to get the information about generators (id, location_name, location(latitude, longitude))
-//	private static String url_generators = "http://arduino.hostei.com/index.php/get/generators";
-	
+	private static int id_generator = 1;//a function must be done to determine the id of the generator selected in the spinner	
 	
 	//JSON node names : Tag for sensordata url
 	private static final String TAG_SENSORS = "sensors";//the sensors json array
@@ -67,13 +59,7 @@ public class MainActivity extends Activity{
 	private static final String TAG_ID_GENERATOR = "id_generator";
 	private static final String TAG_LOCATION_NAME = "name_location";
 	private static final String TAG_LATITUDE = "latitude";
-	private static final String TAG_LONGITUDE = "longitude";
-	
-	//sensordata_array JSONArray
-//	private JSONArray sensordata_array = null;
-	//generators_array JSONArray
-//	private JSONArray generators_array = null;
-	
+	private static final String TAG_LONGITUDE = "longitude";	
 	
 	//creation of the progress dialog bar ("data loading")
 	protected ProgressDialog progress;
@@ -88,6 +74,7 @@ public class MainActivity extends Activity{
 	};
 	
     @Override
+   
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_screen);
@@ -119,9 +106,11 @@ public class MainActivity extends Activity{
     	//display of the progress bar
     	progress = ProgressDialog.show(this, null, "Data loading", true);
     	
+    	spinner_locations.setOnItemSelectedListener(this);
     	
     	new AsyncTaskGetGenerators().execute();  
-    	new AsyncTaskGetSensors().execute();
+//    	new AsyncTaskGetSensors().execute();
+    	
     	
     }
 
@@ -133,8 +122,7 @@ public class MainActivity extends Activity{
     	//url to get the information about generators (id, location_name, location(latitude, longitude))
     	private String url_generators = "http://arduino.hostei.com/index.php/get/generators";
     	
-    	JSONArray generators_array = null;
-    	private List<Generator> generatorList = new ArrayList<Generator>();
+    	JSONArray generators_array = null;    	
     	
     	@Override
     	protected void onPreExecute(){}
@@ -161,7 +149,7 @@ public class MainActivity extends Activity{
         	        generator.setLocation_name(o.getString(TAG_LOCATION_NAME));
         	        generator.setLatitude(Float.valueOf(o.getString(TAG_LATITUDE)));
         	        generator.setLongitude(Float.valueOf(o.getString(TAG_LONGITUDE)));
-        	        generatorList.add(generator);
+//        	        generatorList.add(generator);
         	        
         	     // show the values in our logcat
                     Log.e(TAG, "id_generator: " + generator.getIdGenerator() 
@@ -170,10 +158,11 @@ public class MainActivity extends Activity{
                             + ", longitude: "+ generator.getLongitude());
         	  	  	
         	        //We put data in a BDD to retrieve the id of each generator later
-//        	        GeneratorsBDD generatorsBDD = new GeneratorsBDD(MainActivity.this);
-//        	        generatorsBDD.open();
-//        	        generatorsBDD.updateGenerator(generator.getIdGenerator(), generator);
-//        	        generatorsBDD.close();
+        	        generatorsBDD.open();
+//        	        generatorsBDD.insertGenerator(generator);
+        	        generatorsBDD.updateGenerator(generator.getIdGenerator(), generator);
+        	        Log.e(TAG, "BDD_lines: " +generatorsBDD.getAllGenerators().size());
+        	        generatorsBDD.close();
         	    }   	    
         	    //we indicate that the treatment is over
         	    progressHandler.sendMessage(progressHandler.obtainMessage());
@@ -187,17 +176,17 @@ public class MainActivity extends Activity{
     	@Override
         protected void onPostExecute(String strFromDoInBg) {
     		//we build the spinner
-			addItemsOnSpinner(generatorList);
+    		generatorsBDD.open();
+    		loadSpinnerData(generatorsBDD);
+    		generatorsBDD.close();
+//			addItemsOnSpinner(generatorList);			
     	}
     	
     }
-    
+  
+    //you can make this class as another java file so it will be separated from your main activity.
     public class AsyncTaskGetSensors extends AsyncTask<String, String, String>{
     	final String TAG = "AsyncTaskGetSensors.java";
-    	
-    	private String url_sensorsdata = "http://arduino.hostei.com/index.php/get/"
-    			+ id_generator +"/"		//id of the generator
-    			+ "sensorsdata";		//name to obtain last datas for all sensors
     	
     	JSONArray sensordata_array = null;
     	private List<sensor_line> sensor_lineList = new ArrayList<sensor_line>();
@@ -206,8 +195,18 @@ public class MainActivity extends Activity{
     	protected void onPreExecute(){}
     	
     	@Override
-    	protected String doInBackground(String... arg0){
-    		 
+    	protected String doInBackground(String... location_name){
+    		//we retrieve the id of the location_name of the spinner in the database 
+    		generatorsBDD.open();
+        	generator = generatorsBDD.getGeneratorWithLocationName(location_selected);
+        	id_generator = generator.getIdGenerator();
+        	generatorsBDD.close();
+        	Log.e("onItemSelected: ",""+ generator.getLocation_name()+" ,The id change to " + id_generator);
+        	
+        	final String url_sensorsdata = "http://arduino.hostei.com/index.php/get/"
+        			+ id_generator +"/"		//id of the generator
+        			+ "sensorsdata";		//name to obtain last datas for all sensors
+        	
 	    	try {
 	    		// Creating JSON Parser instance
 		    	JSONParser jParser_sensors = new JSONParser();
@@ -254,30 +253,34 @@ public class MainActivity extends Activity{
     	}
     	
     }
+   
+   //We add items on spinners with a database 
+   public void loadSpinnerData(GeneratorsBDD generatorsBDD){
+	  spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
+	  List<String> list_location = generatorsBDD.getAllGenerators();
+	  Log.i("\nlist_location.size = ", Integer.toString(list_location.size()));
+	  //creating adapter for spinner
+	  ArrayAdapter<String> generatorAdapter = new ArrayAdapter<String>(this,
+			  android.R.layout.simple_spinner_item, list_location);
+	  
+	  //Drop down layout style - list view with radio button
+	  generatorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	  
+	  //attaching generators adapter to spinner
+	  spinner_locations.setAdapter(generatorAdapter);
+	  
+   }
     
-//   private void loadSpinnerData(GeneratorsBDD generatorsBDD){
-//	  //Spinner drop down elements
-//	  List<String> generators = generatorsBDD.getAllGenerators();
-//	  
-//	  //creating adapter for spinner
-//	  ArrayAdapter<String> generatorAdapter = new ArrayAdapter<String>(this,
-//			  android.R.layout.simple_spinner_item, generators);
-//	  
-//	  //Drop down layout style - list view with radio button
-//	  generatorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//	  
-//	  //attaching generators adapter to spinner
-//	  spinner.setAdapter(generatorAdapter);
-//	  
-//   }
-    
-   	//add items into spinner
+   	//Add items on spinner with a list of generator
     public void addItemsOnSpinner(List<Generator> generatorList){
 	  
     	spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
     	List<String> list_location = new ArrayList<String>();
-    	Log.i("\ngeneratorList.size = ", Integer.toString(generatorList.size()));
-    	for (int i=0; i<generatorList.size();i++){
+    	
+    	int size = generatorList.size();
+    	Log.i("\ngeneratorList.size = ", Integer.toString(size));
+    	
+    	for (int i=0; i<size;i++){
 		   Generator generator = generatorList.get(i);
 		   list_location.add(generator.getLocation_name());
 		   Log.i("Boucle While : ",generator.getLocation_name());
@@ -289,28 +292,17 @@ public class MainActivity extends Activity{
     	spinner_locations.setAdapter(dataAdapter);
     }
     
-    //Display the data concerning sensors (type, value,state, etc)
+    //Add the data concerning sensors (type, value,state, etc)
     public void addSensor_Lines(List<sensor_line> sensor_lineList){
-    	for(int i=0;i<sensor_lineList.size();i++){
+    	//we remove all sensor_line
+    	sensor_adapter.clear();
+    	//we add the sensor line
+    	int size = sensor_lineList.size();
+    	for(int i=0;i<size;i++){
     		sensor_line sensor_line = sensor_lineList.get(i);
     		sensor_adapter.add(sensor_line);
     	}
     }
-    
-    // add items into spinner dynamically (Locations)
-//    public void addItemsOnSpinner(GeneratorsBDD generatorsBDD) {
-//       	
-//    	spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
-//        List<String> list_locations = new ArrayList<String>();
-//        list_locations.add("location 1");
-//        list_locations.add("location 2");
-//        list_locations.add("location 3");
-//        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-//                android.R.layout.simple_spinner_item, list_locations);
-//        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        spinner_locations.setAdapter(dataAdapter);
-//	  	
-//    }
    
     // get the selected dropdown list value
     public void addListenerOnButton() {
@@ -331,9 +323,18 @@ public class MainActivity extends Activity{
   	});*/
     }
     
-    
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
+    	spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
+    	//generator = new Generator();
+    	location_selected = parent.getItemAtPosition(pos).toString();
+    	Log.e("onItemSelected: ",location_selected);
+    	new AsyncTaskGetSensors().execute(location_selected);
+    	
+    }
 
-    
+    public void onNothingSelected(AdapterView<?> parent){
+    	//to do
+    }
 
 
 }
