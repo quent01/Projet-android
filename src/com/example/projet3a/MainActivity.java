@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,7 +18,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -41,6 +45,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
 	private ListView listView;
 	//Spinner for the generators
 	private Spinner spinner_locations;
+	//Sensorlist View
+	private View sensorlineView;
 	//google MAP
 
 	//	concerns the database
@@ -61,16 +67,16 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
 	private static final String TAG_LONGITUDE = "longitude";	
 	
 	//creation of the progress dialog bar ("data loading")
-	protected ProgressDialog progress;
-	@SuppressLint("HandlerLeak") final Handler progressHandler = new Handler(){
-		public void handleMessage(Message msg){
-			progress.setTitle("Processing...");
-			progress.setMessage("Please wait.");
-			progress.dismiss();
-			listView.setAdapter(sensor_adapter);
-		}
-		
-	};
+//	protected ProgressDialog progress;
+//	@SuppressLint("HandlerLeak") final Handler progressHandler = new Handler(){
+//		public void handleMessage(Message msg){
+//			progress.setTitle("Processing...");
+//			progress.setMessage("Please wait.");
+//			progress.dismiss();
+//			listView.setAdapter(sensor_adapter);
+//		}
+//		
+//	};
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +84,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
         setContentView(R.layout.main_screen);
         
         spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
-        
+        sensorlineView = (View) findViewById(R.id.sensorline);
         Typeface lovelo = Typeface.createFromAsset(getAssets(), "fonts/Lovelo Black.otf");
         
         //addListenerOnButton();
@@ -102,11 +108,21 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
     	//display all lines
     	sensor_adapter = new sensor_adapter(this, R.layout.data_display);
     	listView = (ListView) findViewById(R.id.data_display_list);
-    	
     	//display of the progress bar
-    	progress = ProgressDialog.show(this, null, "Data loading", true);
+//    	progress = ProgressDialog.show(this, null, "Data loading", true);
     	
-    	spinner_locations.setOnItemSelectedListener(this);    	
+    	spinner_locations.setOnItemSelectedListener(this); 
+    	listView.setAdapter(sensor_adapter);
+    	listView.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+			public void onItemClick(AdapterView<?> parent, View  view, int position,
+					long id) {
+				// TODO Auto-generated method stub
+				Intent t = new Intent(MainActivity.this, GraphActivity.class);
+				//passer la variable filmchoisi a l'autre activity
+				startActivity(t);
+			}
+          });
     	
     	new AsyncTaskGetGenerators().execute();  
 //    	new AsyncTaskGetSensors().execute();
@@ -125,9 +141,13 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
     	private String url_generators = "http://arduino.hostei.com/index.php/get/generators";
     	
     	JSONArray generators_array = null;    	
-    	
+    	protected ProgressDialog progress_generators;
     	@Override
-    	protected void onPreExecute(){}
+    	protected void onPreExecute(){
+    		progress_generators = new ProgressDialog(MainActivity.this);
+    		progress_generators.setMessage("Chargement des lieux...");
+    		progress_generators.show();
+    	}
     	
     	@Override
     	protected String doInBackground(String... arg0){
@@ -173,7 +193,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
         	        generatorsBDD.close();
         	    }   	    
         	    //we indicate that the treatment is over
-        	    progressHandler.sendMessage(progressHandler.obtainMessage());
+//        	    progressHandler.sendMessage(progressHandler.obtainMessage());
         	
         	}catch (JSONException e) {
         	    e.printStackTrace();
@@ -187,7 +207,11 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
     		generatorsBDD.open();
     		loadSpinnerData(generatorsBDD);
     		generatorsBDD.close();
-//			addItemsOnSpinner(generatorList);			
+//			addItemsOnSpinner(generatorList);
+//    		listView.setAdapter(sensor_adapter);
+    		if(progress_generators.isShowing()){
+    			progress_generators.dismiss();
+    		}	
     	}
     	
     }
@@ -198,9 +222,13 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
     	
     	JSONArray sensordata_array = null;
     	private List<sensor_line> sensor_lineList = new ArrayList<sensor_line>();
-    	
+    	protected ProgressDialog progress_sensors;
     	@Override
-    	protected void onPreExecute(){}
+    	protected void onPreExecute(){
+    		progress_sensors = new ProgressDialog(MainActivity.this);
+    		progress_sensors.setMessage("Chargement des capteurs...");
+    		progress_sensors.show();
+    	}
     	
     	@Override
     	protected String doInBackground(String... location_name){
@@ -245,7 +273,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
 	    	        		+ ",sensor_state: " + sensor_line.isState());
 	    	    }
 	    	    //we indicate that the treatment is over
-	    	    progressHandler.sendMessage(progressHandler.obtainMessage());
+//	    	    progressHandler.sendMessage(progressHandler.obtainMessage());
 	    	
 	    	}catch (JSONException e) {
 	    	    e.printStackTrace();
@@ -258,6 +286,10 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
     	protected void onPostExecute(String strFromDoInBg){
     		//we buil all the sensor line
     		addSensor_Lines(sensor_lineList);
+    		listView.setAdapter(sensor_adapter);
+    		if(progress_sensors.isShowing()){
+    			progress_sensors.dismiss();
+    		}
     		
     	}
     	
@@ -344,7 +376,6 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
     public void onNothingSelected(AdapterView<?> parent){
     	//to do
     }
-
 
 }
 
