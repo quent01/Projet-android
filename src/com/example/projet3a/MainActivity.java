@@ -7,27 +7,25 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import data.example.projet3a.JSONParser;
-import data.example.projet3a.sensor_adapter;
-import data.example.projet3a.sensor_line;
-import android.R.string;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import data.example.projet3a.JSONParser;
+import data.example.projet3a.sensor_adapter;
+import data.example.projet3a.sensor_line;
 
 public class MainActivity extends Activity implements OnItemSelectedListener{
 	
@@ -43,7 +41,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
 	private ListView listView;
 	//Spinner for the generators
 	private Spinner spinner_locations;
-	
+	//google MAP
+
 	//	concerns the database
 	private static int id_generator = 1;//a function must be done to determine the id of the generator selected in the spinner	
 	
@@ -74,14 +73,15 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
 	};
 	
     @Override
-   
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_screen);
         
+        spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
+        
         Typeface lovelo = Typeface.createFromAsset(getAssets(), "fonts/Lovelo Black.otf");
         
-        addListenerOnButton();
+        //addListenerOnButton();
         
     	//we change the font to "Lovelo"
     	TextView text_help_logo = (TextView) findViewById(R.id.text_help_logo);
@@ -106,10 +106,12 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
     	//display of the progress bar
     	progress = ProgressDialog.show(this, null, "Data loading", true);
     	
-    	spinner_locations.setOnItemSelectedListener(this);
+    	spinner_locations.setOnItemSelectedListener(this);    	
     	
     	new AsyncTaskGetGenerators().execute();  
 //    	new AsyncTaskGetSensors().execute();
+    	
+//    	MapView mapView = (MapView) findViewById(R.id.MapView);
     	
     	
     }
@@ -145,7 +147,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
         	        JSONObject o = generators_array.getJSONObject(i);
         	         
         	        generator = new Generator();
-        	        generator.setIdGenerator(Integer.parseInt(o.getString(TAG_ID_GENERATOR)));
+        	        generator.setIdGenerator(o.getInt(TAG_ID_GENERATOR));
         	        generator.setLocation_name(o.getString(TAG_LOCATION_NAME));
         	        generator.setLatitude(Float.valueOf(o.getString(TAG_LATITUDE)));
         	        generator.setLongitude(Float.valueOf(o.getString(TAG_LONGITUDE)));
@@ -159,8 +161,14 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
         	  	  	
         	        //We put data in a BDD to retrieve the id of each generator later
         	        generatorsBDD.open();
-//        	        generatorsBDD.insertGenerator(generator);
-        	        generatorsBDD.updateGenerator(generator.getIdGenerator(), generator);
+        	        // on vérifie qu'il n'y a pas en base un générateur de même nom
+        	        if(generatorsBDD.getGeneratorWithLocationName(generator.getLocation_name()) == null){
+        	        	generatorsBDD.insertGenerator(generator);
+        	        }
+        	        else{	
+        	        	generatorsBDD.updateGenerator(generator.getIdGenerator(), generator);
+        	        }
+        	        
         	        Log.e(TAG, "BDD_lines: " +generatorsBDD.getAllGenerators().size());
         	        generatorsBDD.close();
         	    }   	    
@@ -206,6 +214,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
         	final String url_sensorsdata = "http://arduino.hostei.com/index.php/get/"
         			+ id_generator +"/"		//id of the generator
         			+ "sensorsdata";		//name to obtain last datas for all sensors
+        	Log.e("url_sensordata: ",""+url_sensorsdata);
         	
 	    	try {
 	    		// Creating JSON Parser instance
@@ -256,7 +265,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
    
    //We add items on spinners with a database 
    public void loadSpinnerData(GeneratorsBDD generatorsBDD){
-	  spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
+//	  spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
 	  List<String> list_location = generatorsBDD.getAllGenerators();
 	  Log.i("\nlist_location.size = ", Integer.toString(list_location.size()));
 	  //creating adapter for spinner

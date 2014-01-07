@@ -57,6 +57,15 @@ public class GeneratorsBDD {
 		return bdd.insert(TABLE_GENERATORS, null, values);
 	}
 	
+	public boolean isEmpty(){
+		String q = "SELECT * FROM "+ TABLE_GENERATORS;
+		Cursor c = bdd.rawQuery(q, null);
+		if(c == null)
+			return true;
+		else 
+			return false;
+	}
+	
 	public int updateGenerator(int id, Generator generator){
 		//we indicate the generator to update with the id
 		ContentValues values = new ContentValues();
