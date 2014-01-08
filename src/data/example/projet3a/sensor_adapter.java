@@ -57,17 +57,16 @@ public class sensor_adapter extends ArrayAdapter<sensor_line>{
 		sensor_unity.setText(line.getSensorUnity());
     	sensor_unity.setTypeface(lato_light);
 		
-		//SET THE CORRECT SENSOR_TYPE IMAGE
+		//SET THE CORRECT SENSOR_TYPE ICON
 		ImageView sensortype_img = (ImageView) result.findViewById(R.id.sensortype_img);
 		sensortype_img.setImageResource(line.getIdImgSensor());
 		
 		//SET THE SENSOR STATE IMAGE
 		ImageView sensorstate_img = (ImageView) result.findViewById(R.id.sensor_state);
-		if(line.isState())//data is correct
+		if(line.getState())//data is correct
 			sensorstate_img.setImageResource(R.drawable.ok);//data is ok
 		else
 			sensorstate_img.setImageResource(R.drawable.ic_warning);//data is in a weird range of values	
-		
 		
 		return result;
 		

@@ -21,4 +21,11 @@
     </string-array>
     
     <string name="help_description">Logo for the help menu</string>
+    
+    <!-- sensortype -->
+    <string name="sensortype_Temperature">Temperature</string>
+    <string name="sensortype_Humidity">Humidity</string>
+    <string name="sensortype_Rendement">Rendement</string>
+    <string name="sensortype_RotationMotor">Rotation moteur</string>
+    
 </resources>

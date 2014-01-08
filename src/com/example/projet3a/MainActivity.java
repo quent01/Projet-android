@@ -7,19 +7,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -66,25 +61,13 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
 	private static final String TAG_LATITUDE = "latitude";
 	private static final String TAG_LONGITUDE = "longitude";	
 	
-	//creation of the progress dialog bar ("data loading")
-//	protected ProgressDialog progress;
-//	@SuppressLint("HandlerLeak") final Handler progressHandler = new Handler(){
-//		public void handleMessage(Message msg){
-//			progress.setTitle("Processing...");
-//			progress.setMessage("Please wait.");
-//			progress.dismiss();
-//			listView.setAdapter(sensor_adapter);
-//		}
-//		
-//	};
-	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_screen);
+        setContentView(R.layout.activity_main);
         
         spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
-        sensorlineView = (View) findViewById(R.id.sensorline);
+        //sensorlineView = (View) findViewById(R.id.sensorline);
         Typeface lovelo = Typeface.createFromAsset(getAssets(), "fonts/Lovelo Black.otf");
         
         //addListenerOnButton();
@@ -108,8 +91,6 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
     	//display all lines
     	sensor_adapter = new sensor_adapter(this, R.layout.data_display);
     	listView = (ListView) findViewById(R.id.data_display_list);
-    	//display of the progress bar
-//    	progress = ProgressDialog.show(this, null, "Data loading", true);
     	
     	spinner_locations.setOnItemSelectedListener(this); 
     	listView.setAdapter(sensor_adapter);
@@ -125,7 +106,6 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
           });
     	
     	new AsyncTaskGetGenerators().execute();  
-//    	new AsyncTaskGetSensors().execute();
     	
 //    	MapView mapView = (MapView) findViewById(R.id.MapView);
     	
@@ -171,7 +151,6 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
         	        generator.setLocation_name(o.getString(TAG_LOCATION_NAME));
         	        generator.setLatitude(Float.valueOf(o.getString(TAG_LATITUDE)));
         	        generator.setLongitude(Float.valueOf(o.getString(TAG_LONGITUDE)));
-//        	        generatorList.add(generator);
         	        
         	     // show the values in our logcat
                     Log.e(TAG, "id_generator: " + generator.getIdGenerator() 
@@ -192,8 +171,6 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
         	        Log.e(TAG, "BDD_lines: " +generatorsBDD.getAllGenerators().size());
         	        generatorsBDD.close();
         	    }   	    
-        	    //we indicate that the treatment is over
-//        	    progressHandler.sendMessage(progressHandler.obtainMessage());
         	
         	}catch (JSONException e) {
         	    e.printStackTrace();
@@ -259,21 +236,37 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
 	    	        JSONObject c = sensordata_array.getJSONObject(i);
 	    	         
 	    	        sensor_line = new sensor_line();
-	    	        sensor_line.setIdImgSensor(R.drawable.help);
 	    	        sensor_line.setSensorType(c.getString(TAG_SENSOR_NAME));
 	    	        sensor_line.setSensorUnity(c.getString(TAG_UNIT));
-	    	        sensor_line.setSensorValue(c.getString(TAG_VALUE));
-	    	        sensor_line.setState(false);//to modify with a function that determine if a value is safe or not
+	    	        sensor_line.setSensorValue(c.getDouble(TAG_VALUE));
+	    	        
+	    	        // change the state to true if value is ok, false if not
+	    	        sensor_line.setState(sensor_line.isOk());
+//	    	        if(sensor_line.isOk())
+//	    	        	sensor_line.setIdImgSensor(R.drawable.ok);
+//	    	        else
+//	    	        	sensor_line.setIdImgSensor(R.drawable.ic_warning);//The value is in a weird range of value
+	    	        
+	    	        //Application of an icon corresponding to the type of sensor
+	    	        if(sensor_line.getSensorType().equals("Température"))
+	    	        	sensor_line.setIdImgSensor(R.drawable.ic_temperature);
+	    	        else if(sensor_line.getSensorType().equals("Humidité"))
+	    	        	sensor_line.setIdImgSensor(R.drawable.ic_humidity);
+	    	        else if(sensor_line.equals("Rotation moteur"))
+	    	        	sensor_line.setIdImgSensor(R.drawable.help);
+	    	        else if(sensor_line.equals("Rendement"))
+	    	        	sensor_line.setIdImgSensor(R.drawable.help);
+	    	        else
+	    	        	sensor_line.setIdImgSensor(R.drawable.help);
+	    	        
 	    	        sensor_lineList.add(sensor_line);
 	    	        
 	    	        //show the values in logcat
 	    	        Log.e(TAG, "sensor_name: "+ sensor_line.getSensorType()
 	    	        		+ ", sensor_unit: "+ sensor_line.getSensorUnity()
 	    	        		+ ", sensor_value: "+ sensor_line.getSensorValue()
-	    	        		+ ",sensor_state: " + sensor_line.isState());
+	    	        		+ ",sensor_state: " + sensor_line.getState());
 	    	    }
-	    	    //we indicate that the treatment is over
-//	    	    progressHandler.sendMessage(progressHandler.obtainMessage());
 	    	
 	    	}catch (JSONException e) {
 	    	    e.printStackTrace();
