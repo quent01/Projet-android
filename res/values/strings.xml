@@ -5,7 +5,7 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <!-- Google Map API KEY -->
-    <string name="mapKey">AIzaSyB0axOmSnYxQ-069GNcDKW2gAPXyXjUSpA</string>
+    <string name="API_KEY">AIzaSyB0axOmSnYxQ-069GNcDKW2gAPXyXjUSpA</string>
 
     <string name="spinner_locations_title">Choisissez un lieux</string>
  

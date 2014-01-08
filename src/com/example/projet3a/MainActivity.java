@@ -7,13 +7,27 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+
 import android.app.Activity;
+import android.app.ActionBar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.ListFragment;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -26,7 +40,7 @@ import data.example.projet3a.JSONParser;
 import data.example.projet3a.sensor_adapter;
 import data.example.projet3a.sensor_line;
 
-public class MainActivity extends Activity implements OnItemSelectedListener{
+public class MainActivity extends FragmentActivity implements OnItemSelectedListener{
 	
 	private sensor_adapter sensor_adapter;
 	private sensor_line sensor_line;
@@ -40,12 +54,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
 	private ListView listView;
 	//Spinner for the generators
 	private Spinner spinner_locations;
-	//Sensorlist View
-	private View sensorlineView;
-	//google MAP
 
-	//	concerns the database
-	private static int id_generator = 1;//a function must be done to determine the id of the generator selected in the spinner	
+	//	DataBase _ id_generator by default
+	private static int id_generator = 1;	
 	
 	//JSON node names : Tag for sensordata url
 	private static final String TAG_SENSORS = "sensors";//the sensors json array
@@ -95,23 +106,26 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
     	spinner_locations.setOnItemSelectedListener(this); 
     	listView.setAdapter(sensor_adapter);
     	listView.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-			public void onItemClick(AdapterView<?> parent, View  view, int position,
-					long id) {
-				// TODO Auto-generated method stub
-				Intent t = new Intent(MainActivity.this, GraphActivity.class);
-				//passer la variable filmchoisi a l'autre activity
-				startActivity(t);
-			}
-          });
+        
+    	@Override
+		public void onItemClick(AdapterView<?> parent, View  view, int position,
+				long id) {
+			// TODO Auto-generated method stub
+			Intent t = new Intent(MainActivity.this, GraphActivity.class);
+			//passer la sensorline choisi a l'autre activity
+			startActivity(t);
+		}
+      });
     	
     	new AsyncTaskGetGenerators().execute();  
     	
-//    	MapView mapView = (MapView) findViewById(R.id.MapView);
-    	
-    	
+    	// Google Map
+    	GoogleMap map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+//    	//map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-18.142, 178.431), 2));
     }
-
+    
+ 
+    
     // you can make this class as another java file so it will be separated from your main activity.
     public class AsyncTaskGetGenerators extends AsyncTask<String, String, String> {
     	final String TAG = "AsyncTaskGetGenerators.java";
