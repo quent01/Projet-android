@@ -21,7 +21,9 @@ import android.support.v4.app.ListFragment;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.drm.DrmStore.Action;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -77,6 +79,10 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
+        //Change the background color of the Action Bar
+        ActionBar bar = getActionBar();
+        bar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.header_color)));
+        
         spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
         //sensorlineView = (View) findViewById(R.id.sensorline);
         Typeface lovelo = Typeface.createFromAsset(getAssets(), "fonts/Lovelo Black.otf");
@@ -124,7 +130,13 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 //    	//map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-18.142, 178.431), 2));
     }
     
- 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.action_bar, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
     
     // you can make this class as another java file so it will be separated from your main activity.
     public class AsyncTaskGetGenerators extends AsyncTask<String, String, String> {
