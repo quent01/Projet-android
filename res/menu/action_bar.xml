@@ -8,7 +8,7 @@
      
     <!-- Location Found -->
     <item android:id="@+id/action_location_found"
-          android:icon="@drawable/help"
+          android:icon="@drawable/ic_refresh"
           android:title="action_location_found"
           android:showAsAction="ifRoom" />
      

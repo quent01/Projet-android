@@ -24,6 +24,8 @@ import android.content.Intent;
 import android.drm.DrmStore.Action;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -38,6 +40,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import data.example.projet3a.JSONParser;
 import data.example.projet3a.sensor_adapter;
 import data.example.projet3a.sensor_line;
@@ -51,12 +54,12 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	GeneratorsBDD generatorsBDD = new GeneratorsBDD(MainActivity.this);
 	private String location_selected;
 
-	
 	//ListView for sensordata display
 	private ListView listView;
 	//Spinner for the generators
 	private Spinner spinner_locations;
-
+	//Wifi state
+	private Web web = new Web();
 	//	DataBase _ id_generator by default
 	private static int id_generator = 1;	
 	
@@ -79,13 +82,11 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        //Change the background color of the Action Bar
-        ActionBar bar = getActionBar();
-        bar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.header_color)));
-        
         spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
         //sensorlineView = (View) findViewById(R.id.sensorline);
         Typeface lovelo = Typeface.createFromAsset(getAssets(), "fonts/Lovelo Black.otf");
+        
+        initializeActionBar();
         
         //addListenerOnButton();
         
@@ -105,6 +106,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
     	TextView text_value = (TextView) findViewById(R.id.text_value);
     	text_value.setTypeface(lovelo);
     	
+    	//Check wifi state
+    	CheckWifiState();
+    	
     	//display all lines
     	sensor_adapter = new sensor_adapter(this, R.layout.data_display);
     	listView = (ListView) findViewById(R.id.data_display_list);
@@ -112,7 +116,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
     	spinner_locations.setOnItemSelectedListener(this); 
     	listView.setAdapter(sensor_adapter);
     	listView.setOnItemClickListener(new OnItemClickListener() {
-        
+    		
     	@Override
 		public void onItemClick(AdapterView<?> parent, View  view, int position,
 				long id) {
@@ -127,15 +131,17 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
     	
     	// Google Map
     	GoogleMap map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
-//    	//map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-18.142, 178.431), 2));
+    	map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-18.142, 178.431), 2));
     }
     
+  //Creation of the action bar
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.action_bar, menu);
         return super.onCreateOptionsMenu(menu);
+        
     }
     
     // you can make this class as another java file so it will be separated from your main activity.
@@ -143,7 +149,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
     	final String TAG = "AsyncTaskGetGenerators.java";
  
     	// set your json string url here
-    	//url to get the information about generators (id, location_name, location(latitude, longitude))
+    	//URL to get the information about generators (id, location_name, location(latitude, longitude))
     	private String url_generators = "http://arduino.hostei.com/index.php/get/generators";
     	
     	JSONArray generators_array = null;    	
@@ -178,15 +184,15 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
         	        generator.setLatitude(Float.valueOf(o.getString(TAG_LATITUDE)));
         	        generator.setLongitude(Float.valueOf(o.getString(TAG_LONGITUDE)));
         	        
-        	     // show the values in our logcat
-                    Log.e(TAG, "id_generator: " + generator.getIdGenerator() 
+        	        // show the values in our logcat
+                    Log.i(TAG, "id_generator: " + generator.getIdGenerator() 
                             + ", location_name: " + generator.getLocation_name()
                             + ", latitude: " + generator.getLatitude()
                             + ", longitude: "+ generator.getLongitude());
         	  	  	
-        	        //We put data in a BDD to retrieve the id of each generator later
+        	        // We put data in a BDD to retrieve the id of each generator later
         	        generatorsBDD.open();
-        	        // on vérifie qu'il n'y a pas en base un générateur de même nom
+        	        // We verify that there is no generator with the same name
         	        if(generatorsBDD.getGeneratorWithLocationName(generator.getLocation_name()) == null){
         	        	generatorsBDD.insertGenerator(generator);
         	        }
@@ -194,7 +200,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
         	        	generatorsBDD.updateGenerator(generator.getIdGenerator(), generator);
         	        }
         	        
-        	        Log.e(TAG, "BDD_lines: " +generatorsBDD.getAllGenerators().size());
+        	        Log.i(TAG, "BDD_lines: " +generatorsBDD.getAllGenerators().size());
         	        generatorsBDD.close();
         	    }   	    
         	
@@ -240,12 +246,12 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
         	generator = generatorsBDD.getGeneratorWithLocationName(location_selected);
         	id_generator = generator.getIdGenerator();
         	generatorsBDD.close();
-        	Log.e("onItemSelected: ",""+ generator.getLocation_name()+" ,The id change to " + id_generator);
+        	Log.i("onItemSelected: ",""+ generator.getLocation_name()+" ,The id change to " + id_generator);
         	
         	final String url_sensorsdata = "http://arduino.hostei.com/index.php/get/"
         			+ id_generator +"/"		//id of the generator
-        			+ "sensorsdata";		//name to obtain last datas for all sensors
-        	Log.e("url_sensordata: ",""+url_sensorsdata);
+        			+ "sensorsdata";		//name to obtain last data for all sensors
+        	Log.i("url_sensordata: ",""+url_sensorsdata);
         	
 	    	try {
 	    		// Creating JSON Parser instance
@@ -266,12 +272,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	    	        sensor_line.setSensorUnity(c.getString(TAG_UNIT));
 	    	        sensor_line.setSensorValue(c.getDouble(TAG_VALUE));
 	    	        
-	    	        // change the state to true if value is ok, false if not
+	    	        // Change the state to true if value is ok, false if not
 	    	        sensor_line.setState(sensor_line.isOk());
-//	    	        if(sensor_line.isOk())
-//	    	        	sensor_line.setIdImgSensor(R.drawable.ok);
-//	    	        else
-//	    	        	sensor_line.setIdImgSensor(R.drawable.ic_warning);//The value is in a weird range of value
 	    	        
 	    	        //Application of an icon corresponding to the type of sensor
 	    	        if(sensor_line.getSensorType().equals("Température"))
@@ -287,8 +289,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	    	        
 	    	        sensor_lineList.add(sensor_line);
 	    	        
-	    	        //show the values in logcat
-	    	        Log.e(TAG, "sensor_name: "+ sensor_line.getSensorType()
+	    	        //Show the values in logcat
+	    	        Log.i(TAG, "sensor_name: "+ sensor_line.getSensorType()
 	    	        		+ ", sensor_unit: "+ sensor_line.getSensorUnity()
 	    	        		+ ", sensor_value: "+ sensor_line.getSensorValue()
 	    	        		+ ",sensor_state: " + sensor_line.getState());
@@ -303,7 +305,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
     	
     	@Override
     	protected void onPostExecute(String strFromDoInBg){
-    		//we buil all the sensor line
+    		//We build all the sensor line
     		addSensor_Lines(sensor_lineList);
     		listView.setAdapter(sensor_adapter);
     		if(progress_sensors.isShowing()){
@@ -332,6 +334,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
    }
     
    	//Add items on spinner with a list of generator
+   // This function is not used
     public void addItemsOnSpinner(List<Generator> generatorList){
 	  
     	spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
@@ -354,9 +357,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
     
     //Add the data concerning sensors (type, value,state, etc)
     public void addSensor_Lines(List<sensor_line> sensor_lineList){
-    	//we remove all sensor_line
+    	// We remove all sensor_line
     	sensor_adapter.clear();
-    	//we add the sensor line
+    	// We add the sensor line
     	int size = sensor_lineList.size();
     	for(int i=0;i<size;i++){
     		sensor_line sensor_line = sensor_lineList.get(i);
@@ -364,7 +367,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
     	}
     }
    
-    // get the selected dropdown list value
+    // Get the selected dropdown list value
     public void addListenerOnButton() {
  
     	spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
@@ -387,7 +390,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
     	spinner_locations = (Spinner) findViewById(R.id.spinner_locations);
     	//generator = new Generator();
     	location_selected = parent.getItemAtPosition(pos).toString();
-    	Log.e("onItemSelected: ",location_selected);
+    	Log.i("onItemSelected: ",location_selected);
     	new AsyncTaskGetSensors().execute(location_selected);
     	
     }
@@ -395,6 +398,44 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
     public void onNothingSelected(AdapterView<?> parent){
     	//to do
     }
+    
+    public void initializeActionBar(){
+    	//Change the background color of the Action Bar
+        ActionBar bar = getActionBar();
+        bar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.header_color)));
+        
+        // We add the navigation up (button "<") 
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        // We remove the title
+        actionBar.setDisplayShowTitleEnabled(false);
+        
+     // Enabling Spinner dropdown navigation
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+    }
+    
+    public void CheckWifiState(){
+		WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+		int wifiState = wifiManager.getWifiState();
+	
+    	if(wifiState != WifiManager.WIFI_STATE_ENABLED){
+    		Toast toast = Toast.makeText(getApplicationContext(), "Wifi inactif", Toast.LENGTH_LONG);
+    		toast.show();
+    	}
+    	else{
+    		Toast toast = Toast.makeText(getApplicationContext(), "Wifi Actif", Toast.LENGTH_LONG);
+    		toast.show();
+    		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+    		String strBSSID = wifiInfo.getBSSID();
+    		Log.i("ENI", "BSSID =" + strBSSID);
+    		String strIP = String.valueOf(wifiInfo.getIpAddress());
+    		Log.i("ENI", "Ip = " + strIP);
+    		String strMac = wifiInfo.getMacAddress();
+    		Log.i("ENI", "Mac = " + strMac);
+    		
+    	}
+    }
+
 
 }
 
